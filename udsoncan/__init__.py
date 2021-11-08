@@ -294,29 +294,18 @@ class AddressAndLengthFormatIdentifier:
     This class defines how many bytes of a memorylocation, composed of an address and a memorysize, should be encoded when sent over the underlying protocol.
     Mainly used by :ref:`ReadMemoryByAddress<ReadMemoryByAddress>`, :ref:`WriteMemoryByAddress<WriteMemoryByAddress>`, :ref:`RequestDownload<RequestDownload>` and :ref:`RequestUpload<RequestUpload>` services
 
-    Defined by ISO-14229:2006, Annex G
+    Defined by ISO-14229-1:2020, Annex G
 
-    :param address_format: The number of bits on which an address should be encoded. Possible values are 8, 16, 24, 32, 40
+    :param address_format: The number of bits on which an address should be encoded. Possible values are hex values (00-FF).
     :type address_format: int
 
-    :param memorysize_format: The number of bits on which a memory size should be encoded. Possible values are 8, 16, 24, 32
+    :param memorysize_format: The number of bits on which a memory size should be encoded. Possible values are hex values (00-FF).
     :type memorysize_format: int
 
     """
-    address_map = {
-            8 	: 1,
-            16 	: 2,
-            24	: 3,
-            32 	: 4,
-            40	: 5
-    }
+    address_map = {}
 
-    memsize_map = {
-            8 : 1,
-            16 : 2,
-            24 : 3,
-            32 : 4
-    }
+    memsize_map = {}
 
     def __init__(self, address_format, memorysize_format):
         if address_format not in self.address_map:
@@ -328,9 +317,26 @@ class AddressAndLengthFormatIdentifier:
         if memorysize_format not in self.memsize_map:
             raise ValueError('memorysize_format must be an integer selected from : %s' % (self.memsize_map.keys()))
 
-
         self.memorysize_format = memorysize_format
         self.address_format = address_format
+
+        self.build_address_map()
+
+        self.build_memsize_map()
+
+    def build_address_map(self):
+        definition_counter = 0
+        for i in range(256):
+            if(i % 8 == 0):
+                definition_counter += 1
+                AddressAndLengthFormatIdentifier.address_map[i] = definition_counter
+
+    def build_memsize_map(self):
+        definition_counter = 0
+        for i in range(256):
+            if(i % 8 == 0):
+                definition_counter += 1
+                AddressAndLengthFormatIdentifier.memsize_map[i] = definition_counter
 
     def get_byte_as_int(self):
         return  ((self.memsize_map[self.memorysize_format] << 4) | (self.address_map[self.address_format])) & 0xFF
@@ -499,7 +505,7 @@ class DataFormatIdentifier:
 
 # Units defined in standard. Nowhere does the ISO-14229 make use of them, but they are defined
 class Units:
-    #As defined in ISO-14229:2006 Annex C
+    #As defined in ISO-14229:2020 Annex C
     class Prefixs:
         class Prefix:
             def __init__(self, id, name, symbol, description=None):
@@ -548,7 +554,7 @@ class Units:
 
     no_unit 			= Unit(id=0x00, name= 'no unit', 					symbol='-', 		description='-')
     meter 				= Unit(id=0x01, name= 'meter', 						symbol='m', 		description='length')
-    foor 				= Unit(id=0x02, name= 'foot', 						symbol='ft', 		description='length')
+    foot 				= Unit(id=0x02, name= 'foot', 						symbol='ft', 		description='length')
     inch				= Unit(id=0x03, name= 'inch', 						symbol='in', 		description='length')
     yard				= Unit(id=0x04, name= 'yard', 						symbol='yd', 		description='length')
     english_mile		= Unit(id=0x05, name= 'mile (English)',				symbol='mi', 		description='length')
@@ -569,20 +575,20 @@ class Units:
     weber				= Unit(id=0x14, name= 'weber', 						symbol='Wb', 		description='magnetic flux')
     tesla				= Unit(id=0x15, name= 'tesla', 						symbol='T', 		description='magnetic flux density')
     kelvin				= Unit(id=0x16, name= 'kelvin', 					symbol='K', 		description='thermodynamic temperature')
-    Celsius				= Unit(id=0x17, name= 'Celsius', 					symbol='°C', 		description='thermodynamic temperature')
-    Fahrenheit			= Unit(id=0x18, name= 'Fahrenheit', 				symbol='°F', 		description='thermodynamic temperature')
+    celsius				= Unit(id=0x17, name= 'Celsius', 					symbol='°C', 		description='thermodynamic temperature')
+    fahrenheit			= Unit(id=0x18, name= 'Fahrenheit', 				symbol='°F', 		description='thermodynamic temperature')
     candela				= Unit(id=0x19, name= 'candela', 					symbol='cd', 		description='luminous intensity')
     radian				= Unit(id=0x1A, name= 'radian', 					symbol='rad', 		description='plane angle')
     degree				= Unit(id=0x1B, name= 'degree', 					symbol='°', 		description='plane angle')
     hertz				= Unit(id=0x1C, name= 'hertz', 						symbol='Hz', 		description='frequency')
     joule				= Unit(id=0x1D, name= 'joule', 						symbol='J', 		description='energy')
-    Newton				= Unit(id=0x1E, name= 'Newton', 					symbol='N', 		description='force')
+    newton				= Unit(id=0x1E, name= 'Newton', 					symbol='N', 		description='force')
     kilopond			= Unit(id=0x1F, name= 'kilopond', 					symbol='kp', 		description='force')
-    pound				= Unit(id=0x20, name= 'pound force', 				symbol='lbf', 		description='force')
+    pound_force			= Unit(id=0x20, name= 'pound force', 				symbol='lbf', 		description='force')
     watt				= Unit(id=0x21, name= 'watt', 						symbol='W', 		description='power')
-    horse				= Unit(id=0x22, name= 'horse power (metric)', 		symbol='hk', 		description='power')
-    horse				= Unit(id=0x23, name= 'horse power(UK and US)', 	symbol='hp', 		description='power')
-    Pascal				= Unit(id=0x24, name= 'Pascal', 					symbol='Pa', 		description='pressure')
+    horse_hk	        = Unit(id=0x22, name= 'horse power (metric)', 		symbol='hk', 		description='power')
+    horse_hp			= Unit(id=0x23, name= 'horse power(UK and US)', 	symbol='hp', 		description='power')
+    pascal				= Unit(id=0x24, name= 'Pascal', 					symbol='Pa', 		description='pressure')
     bar					= Unit(id=0x25, name= 'bar', 						symbol='bar', 		description='pressure')
     atmosphere			= Unit(id=0x26, name= 'atmosphere', 				symbol='atm', 		description='pressure')
     psi					= Unit(id=0x27, name= 'pound force per square inch',symbol='psi', 		description='pressure')
@@ -590,9 +596,9 @@ class Units:
     lumen				= Unit(id=0x29, name= 'lumen', 						symbol='lm', 		description='light flux')
     lux					= Unit(id=0x2A, name= 'lux', 						symbol='lx', 		description='illuminance')
     liter				= Unit(id=0x2B, name= 'liter', 						symbol='l', 		description='volume')
-    gallon				= Unit(id=0x2C, name= 'gallon (British)', 			symbol='-', 		description='volume')
-    gallon				= Unit(id=0x2D, name= 'gallon (US liq)', 			symbol='-', 		description='volume')
-    cubic				= Unit(id=0x2E, name= 'cubic inch', 				symbol='cu in', 	description='volume')
+    british_gallon		= Unit(id=0x2C, name= 'gallon (British)', 			symbol='-', 		description='volume')
+    us_gallon			= Unit(id=0x2D, name= 'gallon (US liq)', 			symbol='-', 		description='volume')
+    cubic_inch			= Unit(id=0x2E, name= 'cubic inch', 				symbol='cu in', 	description='volume')
     meter_per_sec		= Unit(id=0x2F, name= 'meter per seconds', 			symbol='m/s', 		description='speed')
     kmh					= Unit(id=0x30, name= 'kilometre per hour',			symbol='km/h', 		description='speed')
     mph					= Unit(id=0x31, name= 'mile per hour', 				symbol='mph', 		description='speed')
@@ -602,12 +608,12 @@ class Units:
     percent				= Unit(id=0x35, name= 'percent', 					symbol='%', 		description='-')
     mg_per_stroke		= Unit(id=0x36, name= 'milligram per stroke', 		symbol='mg/stroke', description='mass per engine stroke')
     meter_per_sec2		= Unit(id=0x37, name= 'meter per square seconds', 	symbol='m/s2', 		description='acceleration')
-    Nm					= Unit(id=0x38, name= 'Newton meter', 				symbol='Nm', 		description='moment')
+    newton_meter		= Unit(id=0x38, name= 'Newton meter', 				symbol='Nm', 		description='moment')
     liter_per_min		= Unit(id=0x39, name= 'liter per minute', 			symbol='l/min', 	description='flow')
     watt_per_meter2		= Unit(id=0x3A, name= 'watt per square meter', 		symbol='W/m2', 		description='intensity')
     bar_per_sec			= Unit(id=0x3B, name= 'bar per second', 			symbol='bar/s', 	description='pressure change')
     radians_per_sec		= Unit(id=0x3C, name= 'radians per second', 		symbol='rad/s', 	description='angular velocity')
-    radians				= Unit(id=0x3D, name= 'radians square second', 		symbol='rad/s2', 	description='angular acceleration')
+    radians_per_sec2	= Unit(id=0x3D, name= 'radians square second', 		symbol='rad/s2', 	description='angular acceleration')
     kilogram_per_meter2	= Unit(id=0x3E, name= 'kilogram per square meter', 	symbol='kg/m2', 	description='-')
     date1 				= Unit(id=0x50, name='Date1', 						symbol='-', 		description = 'Year-Month-Day')
     date2 				= Unit(id=0x51, name='Date2', 						symbol='-', 		description = 'Day/Month/Year')
@@ -619,7 +625,6 @@ class Units:
     datetime2 			= Unit(id=0x57, name='DateAndTime2', 				symbol='-', 		description = 'Second/Minute/Hour/Day/Month/Year/Local minute offset/Localhour offset')
     datetime3 			= Unit(id=0x58, name='DateAndTime3', 				symbol='-', 		description = 'Second/Minute/Hour/Month/Day/Year')
     datetime4 			= Unit(id=0x59, name='DateAndTime4', 				symbol='-', 		description = 'Second/Minute/Hour/Month/Day/Year/Local minute offset/Localhour offset')
-
 
 # Routine class that containes few definitions for usage with nice syntax.
 # myRoutine = Routine.EraseMemory    or    print(Routine.name_from_id(myRoutine))
@@ -633,10 +638,9 @@ class Routine:
     CheckProgrammingDependencies = 0xFF01
     EraseMirrorMemoryDTCs = 0xFF02
 
-
     @classmethod
     def name_from_id(cls, routine_id):
-        # Helper to print the type of requests (logging purpose) as defined by ISO-14229:2006, Annex F
+        # Helper to print the type of requests (logging purpose) as defined by ISO-14229:2020, Annex F
         if not isinstance(routine_id, int) or routine_id < 0 or routine_id > 0xFFFF:
             raise ValueError('Routine ID must be a valid integer between 0 and 0xFFFF')
 
@@ -649,8 +653,10 @@ class Routine:
         if routine_id >= 0xE000 and routine_id <= 0xE1FF:
             return 'OBDTestIds'
         if routine_id == 0xE200:
+            return 'ExecuteSPL'
+        if routine_id == 0xE201:
             return 'DeployLoopRoutineID'
-        if routine_id >= 0xE201 and routine_id <= 0xE2FF:
+        if routine_id >= 0xE202 and routine_id <= 0xE2FF:
             return 'SafetySystemRoutineIDs'
         if routine_id >= 0xE300 and routine_id <= 0xEFFF:
             return 'ISOSAEReserved'
@@ -660,9 +666,7 @@ class Routine:
             return 'EraseMemory'
         if routine_id == 0xFF01:
             return 'CheckProgrammingDependencies'
-        if routine_id == 0xFF02:
-            return 'EraseMirrorMemoryDTCs'
-        if routine_id >= 0xFF03 and routine_id <= 0xFFFF:
+        if routine_id >= 0xFF02 and routine_id <= 0xFFFF:
             return 'ISOSAEReserved'
 
 class DataIdentifier:
@@ -706,13 +710,28 @@ class DataIdentifier:
 
     @classmethod
     def name_from_id(cls, did):
-        #As defined by ISO-14229:2006, Annex F
+        #As defined by ISO-14229:2020, Annex F
         if not isinstance(did, int) or did < 0 or did > 0xFFFF:
-            raise ValueError('Data IDentifier must be a valid integer between 0 and 0xFFFF')
-
+            raise ValueError('Data Identifier must be a valid integer between 0 and 0xFFFF')
         if did >= 0x0000 and did <= 0x00FF:
             return 'ISOSAEReserved'
-        if did >= 0x0100 and did <= 0xEFFF:
+        if did >= 0x0100 and did <= 0xA5FF:
+            return 'VehicleManufacturerSpecific'
+        if did >= 0x0600 and did <= 0xA7FF:
+            return 'ReservedForLegislativeUse'
+        if did >= 0xA800 and did <= 0xACFF:
+            return 'VehicleManufacturerSpecific'
+        if did >= 0xAD00 and did <= 0xAFFF:
+            return 'ReservedForLegislativeUse'
+        if did >= 0xB000 and did <= 0xB1FF:
+            return 'VehicleManufacturerSpecific'    
+        if did >= 0xB200 and did <= 0xBFFF:
+            return 'ReservedForLegislativeUse'
+        if did >= 0xC000 and did <= 0xC2FF:
+            return 'VehicleManufacturerSpecific'
+        if did >= 0xC300 and did <= 0xCEFF:
+            return 'ReservedForLegislativeUse'
+        if did >= 0xCF00 and did <= 0xEFFF:
             return 'VehicleManufacturerSpecific'
         if did >= 0xF000 and did <= 0xF00F:
             return 'NetworkConfigurationDataForTractorTrailerApplicationDataIdentifier'
@@ -720,7 +739,6 @@ class DataIdentifier:
             return 'VehicleManufacturerSpecific'
         if did >= 0xF100 and did <= 0xF17F:
             return 'IdentificationOptionVehicleManufacturerSpecificDataIdentifier'
-
         if did == 0xF180:
             return 'BootSoftwareIdentificationDataIdentifier'
         if did == 0xF181:
@@ -754,7 +772,7 @@ class DataIdentifier:
         if did == 0xF18E:
             return 'VehicleManufacturerKitAssemblyPartNumberDataIdentifier'
         if did == 0xF18F:
-            return 'ISOSAEReservedStandardized'
+            return 'RegulationXSoftwareIdentificationNumbers'
         if did == 0xF190:
             return 'VINDataIdentifier'
         if did == 0xF191:
@@ -787,7 +805,6 @@ class DataIdentifier:
             return 'ODXFileDataIdentifier'
         if did == 0xF19F:
             return 'EntityDataIdentifier'
-
         if did >= 0xF1A0 and did <= 0xF1EF:
             return 'IdentificationOptionVehicleManufacturerSpecific'
         if did >= 0xF1F0 and did <= 0xF1FF:
@@ -803,20 +820,30 @@ class DataIdentifier:
         if did >= 0xF600 and did <= 0xF6FF:
             return 'OBDMonitorDataIdentifier'
         if did >= 0xF700 and did <= 0xF7FF:
-            return 'OBDMonitorDataIdentifier'
+            return 'OBDDataIdentifier'
         if did >= 0xF800 and did <= 0xF8FF:
             return 'OBDInfoTypeDataIdentifier'
         if did >= 0xF900 and did <= 0xF9FF:
             return 'TachographDataIdentifier'
         if did >= 0xFA00 and did <= 0xFA0F:
             return 'AirbagDeploymentDataIdentifier'
-        if did >= 0xFA10 and did <= 0xFAFF:
+        if did == 0xFA10:
+            return 'NumberOfEDRDevices'
+        if did == 0xFA11:
+            return 'EDRIdentification'
+        if did == 0xFA12:
+            return 'EDRDeviceAddressInformation'
+        if did >= 0xFA13 and did <= 0xFA18:
+            return 'EDREntries'
+        if did >= 0xFA19 and did <= 0xFAFF:
             return 'SafetySystemDataIdentifier'
-        if did >= 0xFB00 and did <= 0xFCFF:
-            return 'ReservedForLegislativeUse'
         if did >= 0xFD00 and did <= 0xFEFF:
             return 'SystemSupplierSpecific'
-        if did >= 0xFF00 and did <= 0xFFFF:
+        if did == 0xFF00:
+            return 'UDSVersionDataIdentifier'
+        if did == 0xFF01:
+            return 'ReservedForISO15765-5'
+        if did >= 0xFF02 and did <= 0xFFFF:
             return 'ISOSAEReserved'
 
 # Communication type is a single byte value including message type and subnet.
@@ -928,15 +955,15 @@ class Baudrate:
 
     """
     baudrate_map = {
-    9600 : 0x01,
-    19200 : 0x02,
-    38400 : 0x03,
-    57600 : 0x04,
-    115200 : 0x05,
-    125000 : 0x10,
-    250000 : 0x11,
-    500000 : 0x12,
-    1000000 : 0x13,
+        9600 : 0x01,
+        19200 : 0x02,
+        38400 : 0x03,
+        57600 : 0x04,
+        115200 : 0x05,
+        125000 : 0x10,
+        250000 : 0x11,
+        500000 : 0x12,
+        1000000 : 0x13,
     }
 
     class Type:

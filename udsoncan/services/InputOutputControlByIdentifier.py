@@ -10,7 +10,7 @@ class InputOutputControlByIdentifier(BaseService):
     #
     class ControlParam(BaseSubfunction):
         """
-        InputOutputControlByIdentifier defined control parameters as defined by ISO-14229:2006, Annex E
+        InputOutputControlByIdentifier defined control parameters as defined by ISO-14229:2020, Annex E
         """	
 
         __pretty_name__ = 'control parameter'
@@ -216,4 +216,3 @@ class InputOutputControlByIdentifier(BaseService):
             self.did_echo = None
             self.control_param_echo = None
             self.decoded_data = None
-

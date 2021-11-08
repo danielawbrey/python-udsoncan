@@ -11,12 +11,14 @@ class RequestFileTransfer(BaseService):
                                         Response.Code.IncorrectMessageLengthOrInvalidFormat,
                                         Response.Code.ConditionsNotCorrect,
                                         Response.Code.RequestOutOfRange,
+                                        Response.Code.SecurityAccessDenied,
+                                        Response.Code.AuthenticationRequired,                                      
                                         Response.Code.UploadDownloadNotAccepted
                                         ]
     class ModeOfOperation(BaseSubfunction): # Not really a subfunction, but we wantto inherit the helpers in BaseSubfunction class
         """
         RequestFileTransfer Mode Of Operation (MOOP). Represent the action that can be done on the server filesystem.
-        See ISO-14229:2013 Annex G
+        See ISO-14229:2020 Annex G
         """
 
         __pretty_name__ = 'mode of operation'
@@ -26,6 +28,7 @@ class RequestFileTransfer(BaseService):
         ReplaceFile = 3
         ReadFile = 4
         ReadDir = 5
+        ResumeFile = 6
 
     @classmethod
     def normalize_data_format_identifier(cls, dfi):
@@ -43,7 +46,7 @@ class RequestFileTransfer(BaseService):
         """
         Generates a request for RequestFileTransfer
 
-        :param moop: Mode of operation. Can be AddFile(1), DeleteFile(2), ReplaceFile(3), ReadFile(4), ReadDir(5). See :class:`RequestFileTransfer.ModeOfOperation<udsoncan.services.RequestFileTransfer.ModeOfOperation>`
+        :param moop: Mode of operation. Can be AddFile(1), DeleteFile(2), ReplaceFile(3), ReadFile(4), ReadDir(5), ResumeFile(6). See :class:`RequestFileTransfer.ModeOfOperation<udsoncan.services.RequestFileTransfer.ModeOfOperation>`
         :type moop: int
 
         :param path: String representing the path to the target file or directory.
@@ -70,7 +73,8 @@ class RequestFileTransfer(BaseService):
                             cls.ModeOfOperation.DeleteFile,
                             cls.ModeOfOperation.ReplaceFile,
                             cls.ModeOfOperation.ReadFile,
-                            cls.ModeOfOperation.ReadDir]:
+                            cls.ModeOfOperation.ReadDir,
+                            cls.ModeOfOperation.ResumeFile]:
             raise ValueError("Mode of operation of %d is not a known mode" % moop)
 
         if not isinstance(path, str):
@@ -236,7 +240,8 @@ class RequestFileTransfer(BaseService):
         """
         .. data:: moop_echo (int)
 
-                Request ModeOfOperation echoed back by the server
+                Request ModeOfOperation echoed back by the server.
+                The values of the data-parameter shall be defined as specified in Annex G.
 
         .. data:: max_length (int)
 
@@ -251,6 +256,8 @@ class RequestFileTransfer(BaseService):
 
                 Not set for a response to ``DeleteFile``.
                 Set to Compression=0, Encryption=0, when getting a response for ``ReadDir`` as specified by ISO-14229.
+                If the modeOfOperation parameter equals to 0216 ''DeleteFile'' and 0516 ''ReadDir'' this parameter shall not be
+                included in the request message.
 
         .. data:: filesize (Filesize)
 

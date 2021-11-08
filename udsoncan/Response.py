@@ -38,16 +38,13 @@ class Response:
 
             (string) The response code name.
 
-
     .. data:: data
 
             (bytes) The response data. All the payload content, except the service number and the response code
 
-
     .. data:: service_data
 
             (object) The content of ``data`` interpreted by a service; can be any type of content.
-
 
     .. data:: original_payload 
 
@@ -56,8 +53,8 @@ class Response:
     .. data:: unexpected 
 
             (boolean) Indicates that the response was unexpected. Set by an external source such as the :ref:`Client<Client>` object
-
     """
+    
     class Code:
         PositiveResponse = 0
         GeneralReject = 0x10
@@ -72,9 +69,27 @@ class Response:
         FailurePreventsExecutionOfRequestedAction = 0x26
         RequestOutOfRange = 0x31
         SecurityAccessDenied = 0x33
+        AuthenticationRequired = 0X34
         InvalidKey = 0x35
         ExceedNumberOfAttempts = 0x36
         RequiredTimeDelayNotExpired = 0x37
+        SecureDataTransmissionRequired = 0x38
+        SecureDataTransmissionNotAllowed = 0x39
+        SecureDataVerificationFailed = 0x3A
+        CertificationVerificationFailed_InvalidTimePeriod = 0x50
+        CertificationVerificationFailed_InvalidSignature = 0x51
+        CertificationVerificationFailed_InvalidTrustChain = 0x52
+        CertificationVerificationFailed_InvalidType = 0x53
+        CertificationVerificationFailed_InvalidFormat = 0x54
+        CertificationVerificationFailed_InvalidContent = 0x55
+        CertificationVerificationFailed_InvalidScope = 0x56
+        CertificationVerificationFailed_CertificateRevoked = 0x57
+        CertificationVerificationFailed_OwnershipVerificationFailed = 0x58
+        ChallengeCalculationFailed = 0x59
+        SettingAccessRightsFailed = 0x5A
+        SessionKeyCreationFailed = 0x5B
+        ConfigurationDataUsageFailed = 0x5C
+        DeauthenticationFailed = 0x5D
         UploadDownloadNotAccepted = 0x70
         TransferDataSuspended = 0x71
         GeneralProgrammingFailure = 0x72
@@ -101,6 +116,7 @@ class Response:
         TorqueConverterClutchLocked = 0x91
         VoltageTooHigh = 0x92
         VoltageTooLow = 0x93
+        ResourceTemporarilyNotAvailable = 0x94
 
         #Defined by ISO-15764. Offset of 0x38 is defined within UDS standard (ISO-14229)
         GeneralSecurityViolation 			= 0x38 + 0
